@@ -5,7 +5,9 @@ namespace InteraFacil.API.Models
     public class Usuario
     {
         private string _nome;
-        private string _senhaHash;
+
+        public string SenhaHash { get; private set; }
+
         public int Id { get; set; }
         
         public string Nome
@@ -36,7 +38,7 @@ namespace InteraFacil.API.Models
                     throw new ArgumentException("A senha deve ter pelo menos 6 caracteres.");
                 }
                 
-                _senhaHash = "HASHED_" + value;
+                SenhaHash = "HASHED_" + value;
             } }
         
     }
