@@ -9,8 +9,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
-var app = builder.Build();
-
 // Define onde salvar o banco de dados
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=interafacil.db";
 
@@ -19,7 +17,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlite(connectionString)
 );
 
-
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {

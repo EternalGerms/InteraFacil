@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace InteraFacil.API.Models
@@ -5,11 +6,12 @@ namespace InteraFacil.API.Models
     public class Usuario
     {
         private string _nome;
-
+        
+        [JsonIgnore]
         public string SenhaHash { get; private set; }
 
         public int Id { get; set; }
-        
+
         public string Nome
         {
             get { return _nome; }
@@ -22,10 +24,13 @@ namespace InteraFacil.API.Models
                 _nome = value;
             }
         }
+
         public string Email { get; set; }
 
         [JsonIgnore]
-        public string Senha { 
+        [NotMapped]
+        public string Senha
+        {
             get
             {
                 throw new InvalidOperationException("A senha não pode ser lida diretamente.");
@@ -37,9 +42,10 @@ namespace InteraFacil.API.Models
                 {
                     throw new ArgumentException("A senha deve ter pelo menos 6 caracteres.");
                 }
-                
+
                 SenhaHash = "HASHED_" + value;
-            } }
-        
+            }
+        }
+
     }
 }

@@ -11,10 +11,10 @@ namespace InteraFacil.API.Data
             //  Cria um "construtor de opções" em branco
             var optionsBuilder = new DbContextOptionsBuilder<ApiDbContext>();
 
-            var connectionString = "Data Source=finfacil.db";
+            var connectionString = "Data Source=interafacil.db";
             optionsBuilder.UseSqlite(connectionString);
 
-            // 3. Retorna o novo ApiDbContext usando essas opções
+            // Retorna o novo ApiDbContext usando essas opções
             return new ApiDbContext(optionsBuilder.Options);
         }
     }

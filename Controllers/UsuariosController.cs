@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using InteraFacil.API.Models;
 using InteraFacil.API.DTOs;
+using InteraFacil.API.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace InteraFacil.API.Controllers
 {
@@ -8,18 +10,25 @@ namespace InteraFacil.API.Controllers
     [Route("api/[controller]")]
     public class UsuariosController : ControllerBase
     {
-        private static List<Usuario> _usuarios = new List<Usuario>();
+        // Salva a conexão com o BD
+        private readonly ApiDbContext _context;
+
+        public UsuariosController(ApiDbContext context)
+        {
+            _context = context;
+        }
+
 
         [HttpGet]
-        public List<Usuario> ListarUsuarios()
+        public async Task<List<Usuario>> ListarUsuarios()
         {
-            return _usuarios;
+            return await _context.Usuarios.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public IActionResult buscarUsuarioPorId(int id)
+        public async Task<IActionResult> buscarUsuarioPorId(int id)
         {
-            Usuario buscaUsuario = _usuarios.Find(u => u.Id == id);
+            Usuario buscaUsuario = await _context.Usuarios.FindAsync(id);
             if (buscaUsuario == null)
             {
                 return NotFound($"Usuário com ID {id} não encontrado.");
@@ -28,44 +37,53 @@ namespace InteraFacil.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CriarUsuario(UsuarioDTO usuario)
+        public async Task<IActionResult> CriarUsuario(UsuarioDTO usuario)
         {
-            var novoUsuario = new Usuario();
-            novoUsuario.Nome = usuario.Nome;
-            novoUsuario.Email = usuario.Email;
-            novoUsuario.Senha = usuario.Senha;
-            novoUsuario.Id = _usuarios.Count + 1;
-            _usuarios.Add(novoUsuario);
+            var novoUsuario = new Usuario
+            {
+                Nome = usuario.Nome,
+                Email = usuario.Email,
+                Senha = usuario.Senha
+            };
 
-            return CreatedAtAction(nameof(buscarUsuarioPorId), new { id = novoUsuario.Id}, novoUsuario);
+            _context.Usuarios.Add(novoUsuario);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(
+                nameof(buscarUsuarioPorId),
+                new { id = novoUsuario.Id },
+                novoUsuario
+            );
 
         }
 
         [HttpPut("{id}")]
-        public IActionResult AtualizarUsuario(int id, UsuarioDTO usuarioAtualizado)
+        public async Task<IActionResult> AtualizarUsuario(int id, UsuarioDTO usuarioAtualizado)
         {
-            var buscaUsuario = _usuarios.Find(u => u.Id == id);
-            if (buscaUsuario == null)
-            {
-                return NotFound($"Usuário com ID {id} não encontrado.");
-            }     
-            buscaUsuario.Nome = usuarioAtualizado.Nome;
-            buscaUsuario.Email = usuarioAtualizado.Email;
-            buscaUsuario.Senha = usuarioAtualizado.Senha;
-            return Ok($"Usuário atualizado: {buscaUsuario.Nome}, Email: {buscaUsuario.Email}");
-
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult deletarUsuario(int id)
-        {
-            var buscaUsuario = _usuarios.Find(u => u.Id == id);
+            var buscaUsuario = await _context.Usuarios.FindAsync(id);
             if (buscaUsuario == null)
             {
                 return NotFound($"Usuário com ID {id} não encontrado.");
             }
-            _usuarios.Remove(buscaUsuario);
-            return Ok($"Usuário com ID {id} deletado com sucesso.");
+            buscaUsuario.Nome = usuarioAtualizado.Nome;
+            buscaUsuario.Email = usuarioAtualizado.Email;
+            buscaUsuario.Senha = usuarioAtualizado.Senha;
+            await _context.SaveChangesAsync();
+            return NoContent();
+
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> deletarUsuario(int id)
+        {
+            var buscaUsuario = await _context.Usuarios.FindAsync(id);
+            if (buscaUsuario == null)
+            {
+                return NotFound($"Usuário com ID {id} não encontrado.");
+            }
+            _context.Usuarios.Remove(buscaUsuario);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
