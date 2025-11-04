@@ -46,6 +46,7 @@ namespace InteraFacil.API.Models
                 SenhaHash = "HASHED_" + value;
             }
         }
+        public List<Grupo> Grupos { get; set; }
 
     }
 }

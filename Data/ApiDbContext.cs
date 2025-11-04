@@ -13,6 +13,7 @@ namespace InteraFacil.API.Data
 
         // Faz o EF Core criar uma tabela Usuários baseando-se na classe Usuario.
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Grupo> Grupos { get; set; }
 
         // Permite que possamos personalizar a forma que as tabelas são criadas ao se basearem nos Models.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,7 +26,15 @@ namespace InteraFacil.API.Data
             {
                 // Determina que cada email deve ser único
                 entity.HasIndex(u => u.Email).IsUnique();
+
+                // Cria a relação many-to-many com Grupos
+                entity.HasMany(s => s.Grupos)
+                .WithMany(c => c.Usuarios);
             });
+
+            modelBuilder.Entity<Usuario>();
+
+
         }
 
     }

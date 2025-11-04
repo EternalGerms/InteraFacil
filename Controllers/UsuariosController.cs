@@ -3,6 +3,8 @@ using InteraFacil.API.Models;
 using InteraFacil.API.DTOs;
 using InteraFacil.API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
+using System.Runtime.CompilerServices;
 
 namespace InteraFacil.API.Controllers
 {
@@ -45,9 +47,24 @@ namespace InteraFacil.API.Controllers
                 Email = usuario.Email,
                 Senha = usuario.Senha
             };
-
             _context.Usuarios.Add(novoUsuario);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException is SqliteException)
+                {
+                    var sqliteEx = (SqliteException)ex.InnerException;
+                    if (sqliteEx.ErrorCode == 19)
+                    {
+                        return BadRequest("Esse email já está em uso");
+                    }
+                }
+                throw;
+
+            }
 
             return CreatedAtAction(
                 nameof(buscarUsuarioPorId),

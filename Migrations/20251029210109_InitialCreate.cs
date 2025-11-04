@@ -26,7 +26,7 @@ namespace InteraFacil.API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Usuarios_Email",
+                name: "IX_Usuarios_Email",  
                 table: "Usuarios",
                 column: "Email",
                 unique: true);
